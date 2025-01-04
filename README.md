@@ -1,5 +1,11 @@
 # Flask Demo Project
 
+Flask demo app for working out issues in isolation.
+
+This demo relates to setting up tests to automatically rollback database changes.
+
+The current problem of this demo is that database changes are not rolled back between each test.
+
 ## Configuration
 
 Populate `.env`, refer to `.env.example`.
@@ -29,4 +35,10 @@ https://alembic.sqlalchemy.org/en/latest/autogenerate.html
 
 ```sh
 flask --app app run --debug --port 5333
+```
+
+## Tests
+
+```sh
+pytest
 ```
