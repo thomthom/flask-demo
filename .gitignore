@@ -1,0 +1,14 @@
+# Python Virtual environments
+/.venv/
+/env/
+
+# Python
+__pycache__/
+.pytest_cache/
+
+# pytest-cov
+.coverage
+/htmlcov/
+
+# App
+.env

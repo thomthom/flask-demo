@@ -1,0 +1,11 @@
+flask
+Flask-Alembic
+flask-bcrypt
+flask-login
+flask-migrate
+flask-sqlalchemy-lite
+psycopg2
+pytest
+pytest-cov
+python-dotenv
+requests

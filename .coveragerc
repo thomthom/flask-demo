@@ -1,0 +1,17 @@
+; https://coverage.readthedocs.io/en/latest/config.html
+
+; VSCode Coverage issue:
+; https://github.com/microsoft/vscode-python/issues/22827
+
+[run]
+source = app
+omit =
+    tests/*
+    ./*.py
+; branch = True
+; https://coverage.readthedocs.io/en/latest/branch.html
+
+[report]
+exclude_also =
+    ; Don't complain about abstract methods, they aren't run:
+    @(abc\.)?abstractmethod
