@@ -9,6 +9,11 @@ def index():
     return render_template('index.html', user=current_user)
 
 
+@web.route('/login')
+def login():
+    return render_template('index.html', user=current_user)
+
+
 @web.route('/profile')
 @login_required
 def profile():

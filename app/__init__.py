@@ -47,7 +47,7 @@ def create_app(test_config: dict | None = None):
     bcrypt.init_app(app)
 
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'  # type: ignore
+    login_manager.login_view = 'web.login'  # type: ignore
     login_manager.init_app(app)
 
     @login_manager.user_loader

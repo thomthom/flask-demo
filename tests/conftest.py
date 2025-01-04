@@ -11,6 +11,19 @@ from app import bcrypt, create_app, db
 from app.models import Base, User
 
 
+@contextmanager
+def authenticated_user(app, user) -> Iterator[FlaskLoginClient]:
+    # User must have an id. Without committing it will be None.
+    with app.app_context():
+        db.session.add(user)
+        db.session.commit()
+    # https://flask-sqlalchemy-lite.readthedocs.io/en/latest/testing/#testing-data-around-requests
+    # > Accessing db.session or db.engine requires an app context, so you can
+    # > push one temporarily. _Do not make requests inside an active context_,
+    # > they will behave unexpectedly.
+    yield app.test_client(user=user)
+
+
 def create_test_app():
     # https://flask.palletsprojects.com/en/2.0.x/config/
     # https://testdriven.io/blog/flask-pytest/
@@ -62,6 +75,12 @@ def app():
     # https://flask-sqlalchemy-lite.readthedocs.io/en/latest/testing/#avoid-writing-data
 
     with app.app_context():
+        # TODO: Temporarily doing this until I can figure out why rollback isn't
+        # working.
+        Base.metadata.drop_all(db.engine)
+        Base.metadata.create_all(db.engine)
+        # END-TODO
+
         engines = db.engines
 
     cleanup = []
