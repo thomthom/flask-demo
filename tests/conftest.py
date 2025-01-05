@@ -13,15 +13,41 @@ from app.models import Base, User
 
 @contextmanager
 def authenticated_user(app, user) -> Iterator[FlaskLoginClient]:
-    # User must have an id. Without committing it will be None.
+    # Flask-Login require the user object to have and id.
+    # When using SQLAlchemy the User objects will not have an id without
+    # committing it.
     with app.app_context():
         db.session.add(user)
         db.session.commit()
+        user_id = user.id
+    # flask-login documentation describe that for tests one can use
+    # `app.test_client(user=user)`. However, the internal logic of that is to
+    # call `user.get_id()` will will try to refresh the id attribute.
+    #
+    # This will not work without an application context:
+    #
+    #   sqlalchemy.orm.exc.DetachedInstanceError: Instance <User at 0x20280845e90> is not bound
+    #   to a Session; attribute refresh operation cannot proceed
+    #
+    # But pushing an application context is explicitly warned against in the
+    # flask-sqlalchemy(-lite) documentation:
+    #
     # https://flask-sqlalchemy-lite.readthedocs.io/en/latest/testing/#testing-data-around-requests
     # > Accessing db.session or db.engine requires an app context, so you can
     # > push one temporarily. _Do not make requests inside an active context_,
     # > they will behave unexpectedly.
-    yield app.test_client(user=user)
+    #
+    # To work around these incompatible design requirements this helper instead
+    # replicates what `FlaskLoginClient` does, in terms of setting the appropriate
+    # session data, but doing so by using cached id for the user.
+    #
+    # This will not work:
+    #   yield app.test_client(user=user)
+    with app.test_client() as client:
+        with client.session_transaction() as session:
+            session['_user_id'] = user_id
+            session['_fresh'] = True
+        yield client
 
 
 def create_test_app():
